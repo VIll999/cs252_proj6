@@ -1,0 +1,15 @@
+# Build artifacts
+*.o
+*.so
+*.exe
+*.dll
+moc_*
+ui_*.h
+*.pro.user
+*.qrc.dep
+*.obj
+
+# Build directories
+/build/
+/bin/
+/dist/
