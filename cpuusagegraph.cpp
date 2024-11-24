@@ -1,5 +1,4 @@
 #include "cpuusagegraph.h"
-#include <QVBoxLayout>
 #include <QTimer>
 #include <fstream>
 #include <string>
@@ -7,41 +6,53 @@
 #include <cmath>
 #include <QDebug>
 
-QColor CPUUsageGraph::generateColor(int index, int total) {
-    int hue = static_cast<int>((360.0 * index) / total) % 360;
-    return QColor::fromHsv(hue, 255, 255);
-}
-
-void CPUUsageGraph::initializeGraphs() {
+CPUUsageGraph::CPUUsageGraph(QWidget *parent)
+    : QWidget(parent), elapsedTime(0), updateTimer(new QTimer(this)) {
     numCores = getNumCores();
-    for (int i = 0; i < numCores; ++i) {
-        customPlot->addGraph();
-        QColor color = generateColor(i, numCores);
-        if (!color.isValid()) {
-            qDebug() << "Color generation failed for index:" << i;
-            continue;
-        }
-        customPlot->graph(i)->setPen(QPen(color));
-    }
-}
 
-CPUUsageGraph::CPUUsageGraph(QWidget *parent) : QWidget(parent), elapsedTime(0), numCores(0) {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    mainLayout = new QVBoxLayout(this);
+
     customPlot = new QCustomPlot(this);
-
-    layout->addWidget(customPlot);
-    setLayout(layout);
-
-    customPlot->xAxis->setLabel("Time");
+    initializeGraphs();
+    customPlot->setMinimumSize(600, 300);
+    customPlot->xAxis->setLabel("Time (s)");
     customPlot->yAxis->setLabel("CPU Usage (%)");
     customPlot->xAxis->setRange(0, 100);
     customPlot->yAxis->setRange(0, 100);
+    mainLayout->addWidget(customPlot);
 
-    initializeGraphs();
+    cpuInfoLabel = new QLabel("CPU Usage: Initializing...", this);
+    cpuInfoLabel->setWordWrap(true);
+    cpuInfoLabel->setAlignment(Qt::AlignLeft);
+    cpuInfoLabel->setFixedWidth(400);
+    mainLayout->addWidget(cpuInfoLabel);
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &CPUUsageGraph::updateGraph);
-    timer->start(1000);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    startButton = new QPushButton("Start", this);
+    stopButton = new QPushButton("Stop", this);
+    resetButton = new QPushButton("Reset", this);
+    buttonLayout->addWidget(startButton);
+    buttonLayout->addWidget(stopButton);
+    buttonLayout->addWidget(resetButton);
+    mainLayout->addLayout(buttonLayout);
+
+    setLayout(mainLayout);
+
+    connect(startButton, &QPushButton::clicked, this, &CPUUsageGraph::startUpdates);
+    connect(stopButton, &QPushButton::clicked, this, &CPUUsageGraph::stopUpdates);
+    connect(resetButton, &QPushButton::clicked, this, &CPUUsageGraph::resetGraph);
+
+
+    connect(updateTimer, &QTimer::timeout, this, &CPUUsageGraph::updateGraph);
+    updateTimer->start(1000);
+}
+
+void CPUUsageGraph::initializeGraphs() {
+    for (int i = 0; i < numCores; ++i) {
+        customPlot->addGraph();
+        customPlot->graph(i)->setPen(QPen(generateColor(i, numCores)));
+    }
 }
 
 void CPUUsageGraph::updateGraph() {
@@ -54,11 +65,69 @@ void CPUUsageGraph::updateGraph() {
 
     customPlot->xAxis->setRange(elapsedTime - 100, elapsedTime);
     customPlot->replot();
+
+    updateCPUInfo();
+}
+
+void CPUUsageGraph::updateCPUInfo() {
+    std::vector<double> cpuUsages = getAllCPUUsages();
+    QString info = "<b>CPU Usage:</b><br>";
+
+    for (size_t i = 0; i < cpuUsages.size(); ++i) {
+        info += QString("Core %1: %2%<br>").arg(i).arg(cpuUsages[i], 0, 'f', 1);
+    }
+
+    cpuInfoLabel->setText(info);
+}
+
+void CPUUsageGraph::startUpdates() {
+    if (!updateTimer->isActive()) {
+        updateTimer->start(1000);
+    }
+}
+
+void CPUUsageGraph::stopUpdates() {
+    if (updateTimer->isActive()) {
+        updateTimer->stop();
+    }
+}
+
+void CPUUsageGraph::resetGraph() {
+    customPlot->clearGraphs();
+    initializeGraphs();
+    customPlot->xAxis->setRange(0, 100);
+    elapsedTime = 0;
+    customPlot->replot();
+}
+
+int CPUUsageGraph::getNumCores() {
+    std::ifstream file("/proc/stat");
+    int coreCount = -1;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        if (line.find("cpu") == 0 && line != "cpu") {
+            ++coreCount;
+        }
+    }
+    file.close();
+    return coreCount;
+}
+
+std::vector<double> CPUUsageGraph::getAllCPUUsages() {
+    int numCores = getNumCores();
+    std::vector<double> usages;
+
+    for (int i = 0; i < numCores; ++i) {
+        usages.push_back(getCPUUsage(i));
+    }
+
+    return usages;
 }
 
 double CPUUsageGraph::getCPUUsage(int coreIndex) {
-    static std::vector<long long> lastTotal(getNumCores(), 0);
-    static std::vector<long long> lastIdle(getNumCores(), 0);
+    static std::vector<long long> lastTotal(numCores, 0);
+    static std::vector<long long> lastIdle(numCores, 0);
 
     std::ifstream file("/proc/stat");
     std::string line;
@@ -78,30 +147,10 @@ double CPUUsageGraph::getCPUUsage(int coreIndex) {
     lastTotal[coreIndex] = total;
     lastIdle[coreIndex] = idle;
 
-    return totalDiff > 0 ? 100.0 * (1.0 - (double)idleDiff / totalDiff) : 0.0;
+    return 100.0 * (1.0 - (double)idleDiff / totalDiff);
 }
 
-std::vector<double> CPUUsageGraph::getAllCPUUsages() {
-    int numCores = getNumCores();
-    std::vector<double> usages;
-
-    for (int i = 0; i < numCores; ++i) {
-        usages.push_back(getCPUUsage(i));
-    }
-
-    return usages;
-}
-
-int CPUUsageGraph::getNumCores() {
-    std::ifstream file("/proc/stat");
-    int coreCount = -1;
-    std::string line;
-
-    while (std::getline(file, line)) {
-        if (line.find("cpu") == 0 && line != "cpu") {
-            ++coreCount;
-        }
-    }
-    file.close();
-    return coreCount;
+QColor CPUUsageGraph::generateColor(int index, int total) {
+    int hue = static_cast<int>((360.0 * index) / total) % 360;
+    return QColor::fromHsv(hue, 255, 255);
 }

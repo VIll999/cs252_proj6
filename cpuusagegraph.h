@@ -3,7 +3,10 @@
 
 #include <QWidget>
 #include "qcustomplot.h"
-#include <vector>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 class CPUUsageGraph : public QWidget {
     Q_OBJECT
@@ -13,19 +16,30 @@ public:
 
 private slots:
     void updateGraph();
+    void startUpdates();
+    void stopUpdates();
+    void resetGraph();
 
 private:
     QCustomPlot *customPlot;
+    QLabel *cpuInfoLabel;
+    QPushButton *startButton;
+    QPushButton *stopButton;
+    QPushButton *resetButton;
+    QVBoxLayout *mainLayout;
+
+    QTimer *updateTimer;
     int elapsedTime;
-    int numCores;              
+    int numCores;
 
-
+    // Helper functions
     double getCPUUsage(int coreIndex);
     std::vector<double> getAllCPUUsages();
     int getNumCores();
     QColor generateColor(int index, int total);
 
     void initializeGraphs();
+    void updateCPUInfo();
 };
 
 #endif // CPUUSAGEGRAPH_H
