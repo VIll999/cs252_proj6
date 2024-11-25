@@ -54,13 +54,25 @@ OBJECTS_DIR   = ./
 
 SOURCES       = main.cpp \
 		cpuusagegraph.cpp \
-		qcustomplot.cpp moc_cpuusagegraph.cpp \
-		moc_qcustomplot.cpp
+		qcustomplot.cpp \
+		memoryswapgraph.cpp \
+		networkusagegraph.cpp \
+		resourcetab.cpp moc_cpuusagegraph.cpp \
+		moc_qcustomplot.cpp \
+		moc_memoryswapgraph.cpp \
+		moc_networkusagegraph.cpp \
+		moc_resourcetab.cpp
 OBJECTS       = main.o \
 		cpuusagegraph.o \
 		qcustomplot.o \
+		memoryswapgraph.o \
+		networkusagegraph.o \
+		resourcetab.o \
 		moc_cpuusagegraph.o \
-		moc_qcustomplot.o
+		moc_qcustomplot.o \
+		moc_memoryswapgraph.o \
+		moc_networkusagegraph.o \
+		moc_resourcetab.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -145,9 +157,15 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		proj6.pro cpuusagegraph.h \
-		qcustomplot.h main.cpp \
+		qcustomplot.h \
+		memoryswapgraph.h \
+		networkusagegraph.h \
+		resourcetab.h main.cpp \
 		cpuusagegraph.cpp \
-		qcustomplot.cpp
+		qcustomplot.cpp \
+		memoryswapgraph.cpp \
+		networkusagegraph.cpp \
+		resourcetab.cpp
 QMAKE_TARGET  = proj6
 DESTDIR       = 
 TARGET        = proj6
@@ -343,8 +361,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents cpuusagegraph.h qcustomplot.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp cpuusagegraph.cpp qcustomplot.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents cpuusagegraph.h qcustomplot.h memoryswapgraph.h networkusagegraph.h resourcetab.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp cpuusagegraph.cpp qcustomplot.cpp memoryswapgraph.cpp networkusagegraph.cpp resourcetab.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -375,9 +393,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -std=gnu++1z -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_cpuusagegraph.cpp moc_qcustomplot.cpp
+compiler_moc_header_make_all: moc_cpuusagegraph.cpp moc_qcustomplot.cpp moc_memoryswapgraph.cpp moc_networkusagegraph.cpp moc_resourcetab.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_cpuusagegraph.cpp moc_qcustomplot.cpp
+	-$(DEL_FILE) moc_cpuusagegraph.cpp moc_qcustomplot.cpp moc_memoryswapgraph.cpp moc_networkusagegraph.cpp moc_resourcetab.cpp
 moc_cpuusagegraph.cpp: cpuusagegraph.h \
 		qcustomplot.h \
 		moc_predefs.h \
@@ -388,6 +406,27 @@ moc_qcustomplot.cpp: qcustomplot.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /u/riker/u95/wu1908/cs252/proj6/cs252_proj6/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtPrintSupport -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include qcustomplot.h -o moc_qcustomplot.cpp
+
+moc_memoryswapgraph.cpp: memoryswapgraph.h \
+		qcustomplot.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /u/riker/u95/wu1908/cs252/proj6/cs252_proj6/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtPrintSupport -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include memoryswapgraph.h -o moc_memoryswapgraph.cpp
+
+moc_networkusagegraph.cpp: networkusagegraph.h \
+		qcustomplot.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /u/riker/u95/wu1908/cs252/proj6/cs252_proj6/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtPrintSupport -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include networkusagegraph.h -o moc_networkusagegraph.cpp
+
+moc_resourcetab.cpp: resourcetab.h \
+		cpuusagegraph.h \
+		qcustomplot.h \
+		memoryswapgraph.h \
+		networkusagegraph.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /u/riker/u95/wu1908/cs252/proj6/cs252_proj6/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/u/riker/u95/wu1908/cs252/proj6/cs252_proj6 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtPrintSupport -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include resourcetab.h -o moc_resourcetab.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -405,8 +444,11 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-main.o: main.cpp cpuusagegraph.h \
-		qcustomplot.h
+main.o: main.cpp resourcetab.h \
+		cpuusagegraph.h \
+		qcustomplot.h \
+		memoryswapgraph.h \
+		networkusagegraph.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 cpuusagegraph.o: cpuusagegraph.cpp cpuusagegraph.h \
@@ -416,11 +458,35 @@ cpuusagegraph.o: cpuusagegraph.cpp cpuusagegraph.h \
 qcustomplot.o: qcustomplot.cpp qcustomplot.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qcustomplot.o qcustomplot.cpp
 
+memoryswapgraph.o: memoryswapgraph.cpp memoryswapgraph.h \
+		qcustomplot.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o memoryswapgraph.o memoryswapgraph.cpp
+
+networkusagegraph.o: networkusagegraph.cpp networkusagegraph.h \
+		qcustomplot.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o networkusagegraph.o networkusagegraph.cpp
+
+resourcetab.o: resourcetab.cpp resourcetab.h \
+		cpuusagegraph.h \
+		qcustomplot.h \
+		memoryswapgraph.h \
+		networkusagegraph.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o resourcetab.o resourcetab.cpp
+
 moc_cpuusagegraph.o: moc_cpuusagegraph.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_cpuusagegraph.o moc_cpuusagegraph.cpp
 
 moc_qcustomplot.o: moc_qcustomplot.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_qcustomplot.o moc_qcustomplot.cpp
+
+moc_memoryswapgraph.o: moc_memoryswapgraph.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_memoryswapgraph.o moc_memoryswapgraph.cpp
+
+moc_networkusagegraph.o: moc_networkusagegraph.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_networkusagegraph.o moc_networkusagegraph.cpp
+
+moc_resourcetab.o: moc_resourcetab.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_resourcetab.o moc_resourcetab.cpp
 
 ####### Install
 

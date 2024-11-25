@@ -21,12 +21,10 @@ CPUUsageGraph::CPUUsageGraph(QWidget *parent)
     customPlot->yAxis->setRange(0, 100);
     mainLayout->addWidget(customPlot);
 
-    cpuInfoLabel = new QLabel("CPU Usage: Initializing...", this);
-    cpuInfoLabel->setWordWrap(true);
-    cpuInfoLabel->setAlignment(Qt::AlignLeft);
-    cpuInfoLabel->setFixedWidth(400);
-    mainLayout->addWidget(cpuInfoLabel);
-
+    cpuInfoLayout = new QGridLayout();
+    cpuInfoWidget = new QWidget(this);
+    cpuInfoWidget->setLayout(cpuInfoLayout);
+    mainLayout->addWidget(cpuInfoWidget);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     startButton = new QPushButton("Start", this);
@@ -42,7 +40,6 @@ CPUUsageGraph::CPUUsageGraph(QWidget *parent)
     connect(startButton, &QPushButton::clicked, this, &CPUUsageGraph::startUpdates);
     connect(stopButton, &QPushButton::clicked, this, &CPUUsageGraph::stopUpdates);
     connect(resetButton, &QPushButton::clicked, this, &CPUUsageGraph::resetGraph);
-
 
     connect(updateTimer, &QTimer::timeout, this, &CPUUsageGraph::updateGraph);
     updateTimer->start(1000);
@@ -66,18 +63,22 @@ void CPUUsageGraph::updateGraph() {
     customPlot->xAxis->setRange(elapsedTime - 100, elapsedTime);
     customPlot->replot();
 
-    updateCPUInfo();
+    updateCPUInfo(cpuUsages);
 }
 
-void CPUUsageGraph::updateCPUInfo() {
-    std::vector<double> cpuUsages = getAllCPUUsages();
-    QString info = "<b>CPU Usage:</b><br>";
-
-    for (size_t i = 0; i < cpuUsages.size(); ++i) {
-        info += QString("Core %1: %2%<br>").arg(i).arg(cpuUsages[i], 0, 'f', 1);
+void CPUUsageGraph::updateCPUInfo(const std::vector<double> &cpuUsages) {
+    QLayoutItem *item;
+    while ((item = cpuInfoLayout->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
     }
 
-    cpuInfoLabel->setText(info);
+    int columns = std::max(1, width() / 200);
+    for (size_t i = 0; i < cpuUsages.size(); ++i) {
+        QLabel *label = new QLabel(QString("Core %1: %2%").arg(i).arg(cpuUsages[i], 0, 'f', 1), this);
+        label->setAlignment(Qt::AlignCenter);
+        cpuInfoLayout->addWidget(label, i / columns, i % columns);
+    }
 }
 
 void CPUUsageGraph::startUpdates() {

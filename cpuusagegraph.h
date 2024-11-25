@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 
 class CPUUsageGraph : public QWidget {
     Q_OBJECT
@@ -22,7 +23,8 @@ private slots:
 
 private:
     QCustomPlot *customPlot;
-    QLabel *cpuInfoLabel;
+    QWidget *cpuInfoWidget;
+    QGridLayout *cpuInfoLayout;
     QPushButton *startButton;
     QPushButton *stopButton;
     QPushButton *resetButton;
@@ -32,14 +34,14 @@ private:
     int elapsedTime;
     int numCores;
 
-    // Helper functions
+
     double getCPUUsage(int coreIndex);
     std::vector<double> getAllCPUUsages();
     int getNumCores();
     QColor generateColor(int index, int total);
 
     void initializeGraphs();
-    void updateCPUInfo();
+    void updateCPUInfo(const std::vector<double> &cpuUsages);
 };
 
 #endif // CPUUSAGEGRAPH_H
