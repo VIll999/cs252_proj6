@@ -4,7 +4,8 @@
 #include <QWidget>
 #include "qcustomplot.h"
 
-class NetworkUsageGraph : public QWidget {
+class NetworkUsageGraph : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -19,6 +20,9 @@ private:
     QTimer *updateTimer;
 
     void updateNetworkInfo();
+    double currentDownloadRate = 0.0;
+    double currentUploadRate = 0.0;
+    double highestDownloadRate = 0.0;
 };
 
 #endif // NETWORKUSAGEGRAPH_H

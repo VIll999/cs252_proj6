@@ -1,4 +1,4 @@
-QT += widgets core gui printsupport
+QT += widgets core gui printsupport charts
 
 SOURCES += \
     main.cpp \

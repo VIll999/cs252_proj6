@@ -2,9 +2,12 @@
 #define MEMORYSWAPGRAPH_H
 
 #include <QWidget>
+#include <QtCharts/QChartView>
+#include <QtCharts/QPieSeries>
 #include "qcustomplot.h"
 
-class MemorySwapGraph : public QWidget {
+class MemorySwapGraph : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -15,11 +18,19 @@ private slots:
 
 private:
     QCustomPlot *customPlot;
-    QLabel *memoryInfoLabel;
-    QLabel *swapInfoLabel;
+    QtCharts::QChart *memoryChart;
+    QtCharts::QPieSeries *memorySeries;
+    QtCharts::QChartView *memoryChartView;
+
+    QtCharts::QChart *swapChart;
+    QtCharts::QPieSeries *swapSeries;
+    QtCharts::QChartView *swapChartView;
+
     QTimer *updateTimer;
 
     void updateMemorySwapInfo();
+    void updatePieCharts(double memoryUsage, double swapUsage);
+    void updatePieChartTitlesAndLabels(long totalMemory, long availableMemory, long totalSwap, long freeSwap);
 };
 
 #endif // MEMORYSWAPGRAPH_H
