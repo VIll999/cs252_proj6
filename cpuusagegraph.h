@@ -8,8 +8,11 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QLineEdit>
+#include <QTextEdit>
 
-class CPUUsageGraph : public QWidget {
+class CPUUsageGraph : public QWidget
+{
     Q_OBJECT
 
 public:
@@ -20,11 +23,12 @@ private slots:
     void startUpdates();
     void stopUpdates();
     void resetGraph();
+    void selectCore();
 
 private:
     QCustomPlot *customPlot;
-    QWidget *cpuInfoWidget;
-    QGridLayout *cpuInfoLayout;
+    QTextEdit *cpuInfoDisplay;
+    QLineEdit *coreInput;
     QPushButton *startButton;
     QPushButton *stopButton;
     QPushButton *resetButton;
@@ -33,7 +37,7 @@ private:
     QTimer *updateTimer;
     int elapsedTime;
     int numCores;
-
+    int selectedCore;
 
     double getCPUUsage(int coreIndex);
     std::vector<double> getAllCPUUsages();
@@ -42,6 +46,7 @@ private:
 
     void initializeGraphs();
     void updateCPUInfo(const std::vector<double> &cpuUsages);
+    void filterGraphByCore(int coreIndex);
 };
 
 #endif // CPUUSAGEGRAPH_H
