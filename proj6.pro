@@ -7,7 +7,8 @@ SOURCES += \
     memoryswapgraph.cpp \
     networkusagegraph.cpp \
     resourcetab.cpp \
-    systeminfo.cpp
+    systeminfo.cpp \
+    filesystem.cpp
 
 HEADERS += \
     cpuusagegraph.h \
@@ -15,7 +16,8 @@ HEADERS += \
     memoryswapgraph.h \
     networkusagegraph.h \
     resourcetab.h \
-    systeminfo.h
+    systeminfo.h \
+    filesystem.h
 
 INCLUDEPATH += .
 CONFIG += c++17

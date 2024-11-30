@@ -3,8 +3,13 @@
 #include "resourcetab.h"
 #include "systeminfo.h"
 
-ResourceTab::ResourceTab(QWidget *parent) : QWidget(parent) {
+ResourceTab::ResourceTab(QWidget *parent) : QWidget(parent)
+{
     tabWidget = new QTabWidget(this);
+
+    // System tab
+    QWidget *systemInfoTab = new SystemInfo(this);
+    tabWidget->addTab(systemInfoTab, "System");
 
     // CPU tab
     CPUUsageGraph *cpuTab = new CPUUsageGraph(this);
@@ -18,33 +23,9 @@ ResourceTab::ResourceTab(QWidget *parent) : QWidget(parent) {
     NetworkUsageGraph *networkTab = new NetworkUsageGraph(this);
     tabWidget->addTab(networkTab, "Network Usage");
 
-    // System Info tab
-    QWidget *systemInfoTab = new QWidget(this);
-    QVBoxLayout *systemInfoLayout = new QVBoxLayout(systemInfoTab);
-
-    // Display system information
-    QTextEdit *systemInfoDisplay = new QTextEdit(systemInfoTab);
-    systemInfoDisplay->setReadOnly(true);
-    systemInfoDisplay->setText(
-        QString(
-            "System Information:\n"
-            "%1\n"
-            "%2\n"
-            "%3\n"
-            "%4\n"
-            "%5\n"
-        ).arg(
-            SystemInfo::getOSReleaseVersion(),
-            SystemInfo::getKernelVersion(),
-            SystemInfo::getProcessorVersion(),
-            SystemInfo::getMemoryInfo(),
-            SystemInfo::getDiskStorageInfo()
-        )
-    );
-
-    systemInfoLayout->addWidget(systemInfoDisplay);
-    systemInfoTab->setLayout(systemInfoLayout);
-    tabWidget->addTab(systemInfoTab, "System Info");
+    // Filesystem tab
+    FilesystemTab *filesystemTab = new FilesystemTab(this);
+    tabWidget->addTab(filesystemTab, "Filesystems");
 
     // Set layout for the ResourceTab
     QVBoxLayout *layout = new QVBoxLayout(this);

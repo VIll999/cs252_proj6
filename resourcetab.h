@@ -8,6 +8,7 @@
 #include "memoryswapgraph.h"
 #include "networkusagegraph.h"
 #include "systeminfo.h"
+#include "filesystem.h"
 
 class ResourceTab : public QWidget {
     Q_OBJECT
