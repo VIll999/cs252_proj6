@@ -6,6 +6,7 @@
 #include <QImage>
 #include <unistd.h>
 #include <QDebug>
+#include <QPushButton>
 
 SystemInfo::SystemInfo(QWidget *parent) : QWidget(parent)
 {
@@ -14,9 +15,10 @@ SystemInfo::SystemInfo(QWidget *parent) : QWidget(parent)
     QWidget *hostnameWidget = new QWidget(this);
     QHBoxLayout *hostnameLayout = new QHBoxLayout(hostnameWidget);
 
-    QLabel *iconLabel = new QLabel(this);
+    // QLabel *iconLabel = new QLabel(this);
     // iconLabel->setPixmap(getDesktopIcon());
     // iconLabel->setFixedSize(48, 48);
+    QPushButton *refreshButton = new QPushButton("Refresh", this);
 
     // Hostname
     hostnameLabel = new QLabel(getHostname(), this);
@@ -25,7 +27,7 @@ SystemInfo::SystemInfo(QWidget *parent) : QWidget(parent)
     titleFont.setBold(true);
     hostnameLabel->setFont(titleFont);
 
-    hostnameLayout->addWidget(iconLabel);
+    hostnameLayout->addWidget(refreshButton);
     hostnameLayout->addWidget(hostnameLabel);
     hostnameLayout->addStretch(); // keep the hostname label to the left
     mainLayout->addWidget(hostnameWidget);
@@ -74,13 +76,16 @@ SystemInfo::SystemInfo(QWidget *parent) : QWidget(parent)
 
     setLayout(mainLayout);
 
-    refreshTimer = new QTimer(this);
-    connect(refreshTimer, &QTimer::timeout, this, &SystemInfo::refreshInfo);
-    refreshTimer->start(10000);
+    connect(refreshButton, &QPushButton::clicked, this, &SystemInfo::refreshInfo);
+
+    // refreshTimer = new QTimer(this);
+    // connect(refreshTimer, &QTimer::timeout, this, &SystemInfo::refreshInfo);
+    // refreshTimer->start(10000); // 10 seconds
 }
 
 void SystemInfo::refreshInfo()
 {
+    // Update all labels with the latest information
     hostnameLabel->setText(getHostname());
     distributionLabel->setText(getDistributionName());
     osInfoLabel->setText("\t" + getOSReleaseVersion());
@@ -195,8 +200,8 @@ QString SystemInfo::getMemoryInfo()
     file.close();
 
     QString memValue = memInfo.split(":").last().trimmed().split(" ").first();
-    double memInGB = memValue.toDouble() / 1024 / 1024;
-    return QString("%1 GB").arg(memInGB, 0, 'f', 2);
+    double memInGB = memValue.toDouble() / 1024 / 1024; // KB to GB
+    return QString("%1 GB").arg(memInGB, 0, 'f', 2);    // 2 decimal places
 }
 
 QString SystemInfo::getDiskStorageInfo()
@@ -209,8 +214,8 @@ QString SystemInfo::getDiskStorageInfo()
 
     unsigned long long total = stat.f_blocks * stat.f_frsize;
     unsigned long long free = stat.f_bfree * stat.f_frsize;
-    double freeInGB = free / (1024 * 1024 * 1024);
-    return QString("%1 GB").arg(freeInGB, 0, 'f', 2);
+    double freeInGB = free / (1024 * 1024 * 1024);    // Bytes to GB
+    return QString("%1 GB").arg(freeInGB, 0, 'f', 2); // 2 decimal places
 }
 
 QString SystemInfo::getDesktopEnvironment()

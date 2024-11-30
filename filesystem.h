@@ -24,15 +24,14 @@ public:
     ~FilesystemTab()
     {
         delete table;
-        delete timer;
+        // delete timer;
     }
 
-private slots:
-  void populateTable();
 private:
+    void populateTable();
 
     QTableWidget *table;
-    QTimer *timer;
+    // QTimer *timer;
 };
 
 #endif // FILESYSTEM_H

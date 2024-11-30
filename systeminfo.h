@@ -35,11 +35,11 @@ public:
         delete memoryLabel;
         delete cpuLabel;
         delete diskLabel;
-        delete refreshTimer;
+        // delete refreshTimer;
     }
 
 private slots:
-    void refreshInfo();
+    void refreshInfo(); // Function to update system information
 
 private:
     QString getHostname();
@@ -63,7 +63,7 @@ private:
     QLabel *cpuLabel;
     QLabel *diskLabel;
 
-    QTimer *refreshTimer;
+    // QTimer *refreshTimer;
 };
 
 #endif // SYSTEMINFO_H

@@ -1,5 +1,6 @@
 #include "filesystem.h"
 #include <QDebug>
+#include <QPushButton>
 
 FilesystemTab::FilesystemTab(QWidget *parent) : QWidget(parent)
 {
@@ -17,14 +18,23 @@ FilesystemTab::FilesystemTab(QWidget *parent) : QWidget(parent)
     table->setShowGrid(true);
 
     mainLayout->addWidget(table);
+
+    // Add "Refresh" button
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    QPushButton *refreshButton = new QPushButton("Refresh", this);
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(refreshButton);
+    mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
+
+    connect(refreshButton, &QPushButton::clicked, this, &FilesystemTab::populateTable);
 
     // Populate the table with filesystem information
     populateTable();
 
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &FilesystemTab::populateTable);
-    timer->start(10000); // Update every 10 seconds
+    // timer = new QTimer(this);
+    // connect(timer, &QTimer::timeout, this, &FilesystemTab::populateTable);
+    // timer->start(10000); // Update every 10 seconds
 }
 
 void FilesystemTab::populateTable()
