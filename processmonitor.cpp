@@ -190,6 +190,64 @@ void ProcessMonitor::refreshProcesses()
     }
 }
 
+void ProcessMonitor::showContextMenu(const QPoint &pos)
+{
+    QTreeWidgetItem *selectedItem = processTree->itemAt(pos);
+    if (!selectedItem)
+    {
+        return;
+    }
+
+    int pid = selectedItem->text(3).toInt();
+    QString processName = selectedItem->text(0);
+
+    QMenu contextMenu(this);
+    QAction *stopAction = contextMenu.addAction("Stop Process");
+    QAction *continueAction = contextMenu.addAction("Continue Process");
+    QAction *killAction = contextMenu.addAction("Kill Process");
+    QAction *memoryMapsAction = contextMenu.addAction("List Memory Maps");
+    QAction *openFilesAction = contextMenu.addAction("List Open Files");
+
+    QAction *selectedAction = contextMenu.exec(processTree->viewport()->mapToGlobal(pos));
+
+    if (selectedAction == stopAction)
+    {
+        kill(pid, SIGSTOP);
+    }
+    else if (selectedAction == continueAction)
+    {
+        kill(pid, SIGCONT);
+    }
+    else if (selectedAction == killAction)
+    {
+        kill(pid, SIGKILL);
+        refreshProcesses(); // Refresh after killing process
+    }
+    else if (selectedAction == memoryMapsAction)
+    {
+        showMemoryMapsDialog(processName, pid);
+    }
+    else if (selectedAction == openFilesAction)
+    {
+        showOpenFilesDialog(processName, pid);
+    }
+}
+
+void ProcessMonitor::updateButtonState()
+{
+    endProcessButton->setEnabled(processTree->selectedItems().count() > 0);
+}
+
+void ProcessMonitor::endProcess()
+{
+    QTreeWidgetItem *selectedItem = processTree->currentItem();
+    if (selectedItem)
+    {
+        int pid = selectedItem->text(3).toInt();
+        kill(pid, SIGKILL);
+        refreshProcesses();
+    }
+}
 
 int ProcessMonitor::getSelectedPID()
 {
@@ -203,6 +261,54 @@ int ProcessMonitor::getSelectedPID()
     return processTree->topLevelItem(row)->text(3).toInt();
 }
 
+void ProcessMonitor::stopProcess()
+{
+    int pid = getSelectedPID();
+    if (pid != -1)
+    {
+        if (kill(pid, SIGSTOP) == 0)
+        {
+            QMessageBox::information(this, "Process Stopped", QString("Process %1 stopped.").arg(pid));
+        }
+        else
+        {
+            QMessageBox::critical(this, "Error", "Failed to stop process.");
+        }
+    }
+}
+
+void ProcessMonitor::continueProcess()
+{
+    int pid = getSelectedPID();
+    if (pid != -1)
+    {
+        if (kill(pid, SIGCONT) == 0)
+        {
+            QMessageBox::information(this, "Process Continued", QString("Process %1 continued.").arg(pid));
+        }
+        else
+        {
+            QMessageBox::critical(this, "Error", "Failed to continue process.");
+        }
+    }
+}
+
+void ProcessMonitor::killProcess()
+{
+    int pid = getSelectedPID();
+    if (pid != -1)
+    {
+        if (kill(pid, SIGKILL) == 0)
+        {
+            QMessageBox::information(this, "Process Killed", QString("Process %1 killed.").arg(pid));
+            refreshProcesses(); // Refresh after killing process
+        }
+        else
+        {
+            QMessageBox::critical(this, "Error", "Failed to kill process.");
+        }
+    }
+}
 
 void ProcessMonitor::showMemoryMaps()
 {
