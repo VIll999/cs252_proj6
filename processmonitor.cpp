@@ -64,6 +64,131 @@ QString ProcessMonitor::getUsername(uid_t uid)
     return "Unknown";
 }
 
+void ProcessMonitor::refreshProcesses()
+{
+    processTree->clear();
+
+    // Update load averages
+    QFile loadavgFile("/proc/loadavg");
+    if (loadavgFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QString loadavg = loadavgFile.readLine().trimmed();
+        loadLabel->setText("Load averages for last 1, 5, 15 minutes: " + loadavg.split(" ").mid(0, 3).join(", "));
+    }
+
+    // Scan /proc for processes
+    QDir procDir("/proc");
+    QStringList entries = procDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    QMap<int, QTreeWidgetItem *> items; // Map of PID to tree items
+
+    for (const QString &entry : entries)
+    {
+        bool isNumeric;
+        int pid = entry.toInt(&isNumeric);
+        if (!isNumeric)
+        {
+            continue; // Skip non-numeric entries
+        }
+
+        QString cmdline, status = "Unknown";
+        double memory = 0.0, cpu = 0.0;
+        int ppid = 0;
+
+        // Read cmdline
+        QFile cmdlineFile(QString("/proc/%1/cmdline").arg(pid));
+        if (cmdlineFile.open(QIODevice::ReadOnly))
+        {
+            QByteArray cmdlineData = cmdlineFile.readAll();
+            cmdline = QString(cmdlineData).replace('\0', ' ').trimmed();
+            if (cmdline.isEmpty())
+            {
+                cmdline = QString("[PID %1]").arg(pid);
+            }
+        }
+
+        // Read status and parent PID
+        QFile statusFile(QString("/proc/%1/status").arg(pid));
+        if (statusFile.open(QIODevice::ReadOnly))
+        {
+            QByteArray statusData = statusFile.readAll();
+            QStringList lines = QString(statusData).split('\n');
+            for (const QString &line : lines)
+            {
+                if (line.startsWith("State:"))
+                {
+                    QStringList parts = line.split(QRegExp("\\s+"));
+                    if (parts.size() > 1)
+                    {
+                        status = parts[1]; // Extract status character
+                        if (status == "R")
+                        {
+                            status = "Running";
+                        }
+                        else if (status == "S")
+                        {
+                            status = "Sleeping";
+                        }
+                        else if (status == "D")
+                        {
+                            status = "Disk Sleep";
+                        }
+                        else if (status == "T")
+                        {
+                            status = "Stopped";
+                        }
+                        else if (status == "Z")
+                        {
+                            status = "Zombie";
+                        }
+                        else
+                        {
+                            status = "Unknown";
+                        }
+                    }
+                }
+                else if (line.startsWith("VmRSS:"))
+                {
+                    QStringList parts = line.split(QRegExp("\\s+"));
+                    if (parts.size() > 1)
+                    {
+                        memory = parts[1].toDouble() / 1024.0; // Convert to MiB
+                    }
+                }
+                else if (line.startsWith("PPid:"))
+                {
+                    QStringList parts = line.split(QRegExp("\\s+"));
+                    if (parts.size() > 1)
+                    {
+                        ppid = parts[1].toInt();
+                    }
+                }
+            }
+        }
+
+        // Create a new tree item
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, cmdline);                                  // Process Name
+        item->setText(1, status);                                   // Status
+        item->setText(2, QString::number(cpu, 'f', 2) + "%");       // %CPU (placeholder)
+        item->setText(3, QString::number(pid));                     // PID
+        item->setText(4, QString::number(memory, 'f', 2) + " MiB"); // Memory
+
+        // Set the item's icon
+        item->setIcon(0, QIcon::fromTheme("application-x-executable")); // Example icon
+
+        items[pid] = item;
+
+        // Attach to parent if applicable
+        if (items.contains(ppid))
+        {
+            items[ppid]->addChild(item);
+        }
+        else
+        {
+            processTree->addTopLevelItem(item);
+        }
+    }
+}
 
 
 int ProcessMonitor::getSelectedPID()
