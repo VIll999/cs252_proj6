@@ -3,8 +3,12 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include "resourcetab.h"
+#include "systeminfo.h"
+#include "filesystem.h"
+#include "processmonitor.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     QApplication app(argc, argv);
 
     QWidget mainWindow;
@@ -13,11 +17,17 @@ int main(int argc, char *argv[]) {
 
     QTabWidget *mainTabWidget = new QTabWidget(&mainWindow);
 
-    // Add Resource tab
+    SystemInfo *systemInfoTab = new SystemInfo();
+    mainTabWidget->addTab(systemInfoTab, "System Info");
+
+    ProcessMonitor *processTab = new ProcessMonitor();
+    mainTabWidget->addTab(processTab, "Processes");
+
     ResourceTab *resourceTab = new ResourceTab();
     mainTabWidget->addTab(resourceTab, "Resources");
 
-    // Future tabs for other functionalities
+    FilesystemTab *filesystemTab = new FilesystemTab();
+    mainTabWidget->addTab(filesystemTab, "Filesystems");
 
     QVBoxLayout *layout = new QVBoxLayout(&mainWindow);
     layout->addWidget(mainTabWidget);

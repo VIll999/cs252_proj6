@@ -3,14 +3,12 @@
 
 #include <QWidget>
 #include <QTabWidget>
-
 #include "cpuusagegraph.h"
 #include "memoryswapgraph.h"
 #include "networkusagegraph.h"
-#include "systeminfo.h"
-#include "filesystem.h"
 
-class ResourceTab : public QWidget {
+class ResourceTab : public QWidget
+{
     Q_OBJECT
 
 public:

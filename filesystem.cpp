@@ -29,12 +29,7 @@ FilesystemTab::FilesystemTab(QWidget *parent) : QWidget(parent)
 
     connect(refreshButton, &QPushButton::clicked, this, &FilesystemTab::populateTable);
 
-    // Populate the table with filesystem information
     populateTable();
-
-    // timer = new QTimer(this);
-    // connect(timer, &QTimer::timeout, this, &FilesystemTab::populateTable);
-    // timer->start(10000); // Update every 10 seconds
 }
 
 void FilesystemTab::populateTable()

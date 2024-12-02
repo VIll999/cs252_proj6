@@ -38,7 +38,7 @@ MemorySwapGraph::MemorySwapGraph(QWidget *parent)
     memoryChart->setTitle("Memory Usage");
     memoryChartView = new QtCharts::QChartView(memoryChart);
     memoryChartView->setRenderHint(QPainter::Antialiasing);
-    memoryChartView->setMinimumWidth(200); // Adjust size if needed
+    memoryChartView->setMinimumWidth(200);
     pieChartsLayout->addWidget(memoryChartView);
 
     swapSeries = new QtCharts::QPieSeries(this);

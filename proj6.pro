@@ -8,7 +8,8 @@ SOURCES += \
     networkusagegraph.cpp \
     resourcetab.cpp \
     systeminfo.cpp \
-    filesystem.cpp
+    filesystem.cpp \
+    processmonitor.cpp
 
 HEADERS += \
     cpuusagegraph.h \
@@ -17,7 +18,8 @@ HEADERS += \
     networkusagegraph.h \
     resourcetab.h \
     systeminfo.h \
-    filesystem.h
+    filesystem.h \
+    processmonitor.h
 
 INCLUDEPATH += .
 CONFIG += c++17
