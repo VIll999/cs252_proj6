@@ -95,17 +95,30 @@ void NetworkUsageGraph::updateGraph()
 
         while (std::getline(netinfo, line))
         {
+
+            line.erase(0, line.find_first_not_of(" \t"));
+
             std::istringstream iss(line);
             std::string interfaceName;
-            long long recv, transmit;
-            iss >> interfaceName >> recv;
-            iss.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-            iss >> transmit;
+            std::getline(iss, interfaceName, ':');
 
-            received += recv;
-            transmitted += transmit;
+            long long recvBytes, recvPackets, recvErrs, recvDrop, recvFifo, recvFrame, recvCompressed, recvMulticast;
+            long long transBytes, transPackets, transErrs, transDrop, transFifo, transColls, transCarrier, transCompressed;
+
+            iss >> recvBytes >> recvPackets >> recvErrs >> recvDrop >> recvFifo >> recvFrame >> recvCompressed >> recvMulticast >> transBytes >> transPackets >> transErrs >> transDrop >> transFifo >> transColls >> transCarrier >> transCompressed;
+
+            if (interfaceName == "lo")
+                continue;
+
+            received += recvBytes;
+            transmitted += transBytes;
         }
         netinfo.close();
+    }
+    else
+    {
+        qWarning() << "Failed to open /proc/net/dev";
+        return;
     }
 
     if (!initialized)
@@ -113,11 +126,13 @@ void NetworkUsageGraph::updateGraph()
         lastReceived = received;
         lastTransmitted = transmitted;
         initialized = true;
+
         return;
     }
 
     long long deltaReceived = received - lastReceived;
     long long deltaTransmitted = transmitted - lastTransmitted;
+
     lastReceived = received;
     lastTransmitted = transmitted;
 
